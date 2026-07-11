@@ -1195,58 +1195,13 @@ function WealthLab() {
           </h3>
         </Lab>
       )}
-      {tab === 'captable' && (
-        <GenericLab
-          title="Cap-Table & Dilution Simulator"
-          text={`A 1,000-share founder and 250-share employee pool before 500 new investor shares become ${capTable(
-            [
-              { name: 'Founder', shares: 1000 },
-              { name: 'Employees', shares: 250 },
-            ],
-            500,
-          )
-            .map((x) => `${x.name}: ${x.percent.toFixed(1)}%`)
-            .join(
-              ', ',
-            )}. New rounds and option pools dilute percentages even when share counts do not change.`}
-        />
-      )}{' '}
-      {tab === 'treasury' && (
-        <GenericLab
-          title="Treasury Ladder Simulator"
-          text="Illustrative maturities at 4, 8, 13, 17, 26, and 52 weeks can spread liquidity timing. Reinvestment rates are unknown; this tool does not trade or guarantee yield."
-        />
-      )}
-      {tab === 'lifestyle' && (
-        <GenericLab
-          title="Lifestyle Sustainability"
-          text={`Illustration: $1.2M cash flow minus $750k spending and $200k reserves leaves ${money(lifestyleGap(1200000, 750000, 200000))}. Include property, staff, travel, security, taxes, insurance, maintenance, and uncertainty.`}
-        />
-      )}{' '}
-      {tab === 'jet' && (
-        <GenericLab
-          title="Jet Decision Lab"
-          text="Compare commercial, charter, jet card, fractional, and full ownership by annual hours, route fit, time value, acquisition cost, crew, maintenance, insurance, hangar, repositioning, and downtime. Verify current costs with qualified operators."
-        />
-      )}
-      {tab === 'yacht' && (
-        <GenericLab
-          title="Yacht Decision Lab"
-          text="Charter may convert fixed ownership, crew, storage, maintenance, insurance, and refit costs into usage-based costs. Utilization and opportunity cost matter more than appearance."
-        />
-      )}
-      {tab === 'family' && (
-        <GenericLab
-          title="Family Office Lab"
-          text="Compare coordinated outside advisors, a multi-family office, and a dedicated office by complexity, privacy, governance, reporting, and total cost. There is no universal asset threshold."
-        />
-      )}
-      {tab === 'acquisition' && (
-        <GenericLab
-          title="Acquisition Lab"
-          text="Test revenue, sustainable cash flow, purchase multiple, financing, synergies, integration costs, cultural fit, and downside cases. A low price cannot rescue weak strategic fit."
-        />
-      )}
+      {tab === 'captable' && <CapTableLab />}{' '}
+      {tab === 'treasury' && <TreasuryLab />}
+      {tab === 'lifestyle' && <LifestyleLab />}{' '}
+      {tab === 'jet' && <AssetUseLab kind="Jet" />}
+      {tab === 'yacht' && <AssetUseLab kind="Yacht" />}
+      {tab === 'family' && <FamilyOfficeLab />}
+      {tab === 'acquisition' && <AcquisitionLab />}
       {tab === 'ipo' && (
         <GenericLab
           title="IPO Readiness Lab"
@@ -1290,12 +1245,50 @@ function Lab({
   );
 }
 function GenericLab({ title, text }: { title: string; text: string }) {
+  const [checked, setChecked] = useState<boolean[]>([
+    false,
+    false,
+    false,
+    false,
+  ]);
+  const items = title.startsWith('IPO')
+    ? [
+        'Governance and board readiness',
+        'Audited financials and controls',
+        'Legal, listing, and reporting readiness',
+        'Private alternatives compared',
+      ]
+    : [
+        'Impact goal and measurement',
+        'Vehicle and administration compared',
+        'Governance owner assigned',
+        'Qualified advice planned',
+      ];
   return (
     <Lab
       title={title}
       reality="Illustrative assumptions only. Verify current rules, costs, and professional guidance."
     >
       <p className="lede">{text}</p>
+      <fieldset>
+        <legend>
+          Readiness checklist · {checked.filter(Boolean).length}/{items.length}
+        </legend>
+        {items.map((item, i) => (
+          <label className="check" key={item}>
+            <input
+              type="checkbox"
+              checked={checked[i]}
+              onChange={(e) =>
+                setChecked(
+                  checked.map((x, n) => (n === i ? e.target.checked : x)),
+                )
+              }
+            />
+            {item}
+          </label>
+        ))}
+      </fieldset>
     </Lab>
   );
 }
@@ -1309,6 +1302,238 @@ function Result({ rows }: { rows: [string, number][] }) {
         </React.Fragment>
       ))}
     </dl>
+  );
+}
+function CapTableLab() {
+  const [founder, setFounder] = useState(1000),
+    [employees, setEmployees] = useState(250),
+    [investors, setInvestors] = useState(500),
+    [pool, setPool] = useState(150);
+  const rows = capTable(
+    [
+      { name: 'Founder', shares: founder },
+      { name: 'Employees', shares: employees },
+      { name: 'Option pool', shares: pool },
+    ],
+    investors,
+  );
+  return (
+    <Lab
+      title="Cap-Table & Dilution Simulator"
+      reality="New rounds and option pools dilute percentages even when an existing holder's share count does not change."
+    >
+      <div className="form-grid">
+        <Num label="Founder shares" value={founder} set={setFounder} />
+        <Num label="Employee shares" value={employees} set={setEmployees} />
+        <Num label="New investor shares" value={investors} set={setInvestors} />
+        <Num label="Option-pool shares" value={pool} set={setPool} />
+      </div>
+      <table>
+        <caption>Ownership after new round</caption>
+        <tbody>
+          {rows.map((r) => (
+            <tr key={r.name}>
+              <th>{r.name}</th>
+              <td>{r.percent.toFixed(1)}%</td>
+            </tr>
+          ))}
+          <tr>
+            <th>New investors</th>
+            <td>
+              {(
+                (investors / (founder + employees + pool + investors || 1)) *
+                100
+              ).toFixed(1)}
+              %
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </Lab>
+  );
+}
+function TreasuryLab() {
+  const [principal, setPrincipal] = useState(5000000),
+    [rungs, setRungs] = useState(6),
+    [rate, setRate] = useState(4);
+  const per = principal / Math.max(1, rungs);
+  return (
+    <Lab
+      title="Treasury Ladder Simulator"
+      reality="Maturity schedules create timing options; auction rates and reinvestment rates are unknown and this tool does not trade."
+    >
+      <div className="form-grid">
+        <Num label="Principal" value={principal} set={setPrincipal} />
+        <Num label="Number of rungs" value={rungs} set={setRungs} />
+        <Num
+          label="Illustrative annual rate"
+          value={rate}
+          set={setRate}
+          suffix="%"
+        />
+      </div>
+      <p>
+        <b>{money(per)}</b> per rung across {rungs} maturities. Illustrative
+        annualized interest: <b>{money((principal * rate) / 100)}</b>.
+      </p>
+      <p>
+        Common bill terms include 4, 6, 8, 13, 17, 26, and 52 weeks; verify
+        available auctions at TreasuryDirect.
+      </p>
+    </Lab>
+  );
+}
+function LifestyleLab() {
+  const [income, setIncome] = useState(1200000),
+    [spending, setSpending] = useState(750000),
+    [reserve, setReserve] = useState(200000);
+  return (
+    <Lab
+      title="Lifestyle Sustainability"
+      reality="A lifestyle is supported by durable after-tax cash flow and reserves, not paper valuation."
+    >
+      <div className="form-grid">
+        <Num
+          label="Annual available cash flow"
+          value={income}
+          set={setIncome}
+        />
+        <Num
+          label="Property, staff, travel & security"
+          value={spending}
+          set={setSpending}
+        />
+        <Num label="Taxes and reserves" value={reserve} set={setReserve} />
+      </div>
+      <h3>Annual margin: {money(lifestyleGap(income, spending, reserve))}</h3>
+    </Lab>
+  );
+}
+function AssetUseLab({ kind }: { kind: 'Jet' | 'Yacht' }) {
+  const [use, setUse] = useState(kind === 'Jet' ? 100 : 30),
+    [charter, setCharter] = useState(kind === 'Jet' ? 9000 : 18000),
+    [fixed, setFixed] = useState(kind === 'Jet' ? 1800000 : 1200000),
+    [variable, setVariable] = useState(kind === 'Jet' ? 4500 : 7000);
+  const charterTotal = use * charter,
+    ownTotal = fixed + use * variable;
+  return (
+    <Lab
+      title={`${kind} Decision Lab`}
+      reality="Verify current costs with qualified operators. Productive assets and sustainable cash flow come before luxury."
+    >
+      <div className="form-grid">
+        <Num
+          label={kind === 'Jet' ? 'Annual flight hours' : 'Annual use days'}
+          value={use}
+          set={setUse}
+        />
+        <Num label="Charter cost per unit" value={charter} set={setCharter} />
+        <Num
+          label="Illustrative annual fixed ownership"
+          value={fixed}
+          set={setFixed}
+        />
+        <Num
+          label="Ownership variable cost per unit"
+          value={variable}
+          set={setVariable}
+        />
+      </div>
+      <Result
+        rows={[
+          ['Charter illustration', charterTotal],
+          ['Ownership operating illustration', ownTotal],
+          ['Difference', Math.abs(ownTotal - charterTotal)],
+        ]}
+      />
+      <p>
+        Also evaluate commercial travel, cards or fractional interests,
+        acquisition opportunity cost, crew, maintenance, storage or hangar,
+        insurance, downtime, and route fit.
+      </p>
+    </Lab>
+  );
+}
+function FamilyOfficeLab() {
+  const [entities, setEntities] = useState(3),
+    [advisors, setAdvisors] = useState(4),
+    [cost, setCost] = useState(250000);
+  const complexity = entities + advisors;
+  return (
+    <Lab
+      title="Family Office Lab"
+      reality="There is no universal asset threshold; complexity, privacy, service needs, and total cost drive the choice."
+    >
+      <div className="form-grid">
+        <Num
+          label="Entities / operating companies"
+          value={entities}
+          set={setEntities}
+        />
+        <Num
+          label="Outside advisor relationships"
+          value={advisors}
+          set={setAdvisors}
+        />
+        <Num label="Annual coordination budget" value={cost} set={setCost} />
+      </div>
+      <h3>
+        Complexity signal:{' '}
+        {complexity < 5
+          ? 'Coordinated outside advisors'
+          : complexity < 10
+            ? 'Compare multi-family office services'
+            : 'Study dedicated team needs'}
+      </h3>
+      <p>
+        Map tax, legal, investment, insurance, reporting, philanthropy,
+        governance, privacy, and administrative roles before selecting a
+        structure.
+      </p>
+    </Lab>
+  );
+}
+function AcquisitionLab() {
+  const [revenue, setRevenue] = useState(5000000),
+    [margin, setMargin] = useState(15),
+    [multiple, setMultiple] = useState(6),
+    [synergy, setSynergy] = useState(300000),
+    [integration, setIntegration] = useState(750000),
+    [debt, setDebt] = useState(40);
+  const cashFlow = (revenue * margin) / 100,
+    price = cashFlow * multiple,
+    downside = cashFlow * 0.7 + synergy - integration;
+  return (
+    <Lab
+      title="Acquisition Lab"
+      reality="A low price cannot rescue weak strategic, legal, technical, data-rights, or cultural fit."
+    >
+      <div className="form-grid">
+        <Num label="Target revenue" value={revenue} set={setRevenue} />
+        <Num
+          label="Cash-flow margin"
+          value={margin}
+          set={setMargin}
+          suffix="%"
+        />
+        <Num label="Purchase multiple" value={multiple} set={setMultiple} />
+        <Num label="Annual synergies" value={synergy} set={setSynergy} />
+        <Num
+          label="Integration cost"
+          value={integration}
+          set={setIntegration}
+        />
+        <Num label="Debt financing" value={debt} set={setDebt} suffix="%" />
+      </div>
+      <Result
+        rows={[
+          ['Implied cash flow', cashFlow],
+          ['Illustrative purchase price', price],
+          ['Illustrative debt', (price * debt) / 100],
+          ['Downside first-year contribution', downside],
+        ]}
+      />
+    </Lab>
   );
 }
 function Projects() {
