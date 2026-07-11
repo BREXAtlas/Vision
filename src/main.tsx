@@ -1982,6 +1982,32 @@ function CourseBuilder() {
           >
             <Download /> Markdown
           </Button>
+          <Button
+            onClick={() =>
+              downloadText(
+                JSON.stringify(
+                  {
+                    quarters,
+                    lessons,
+                    quizzes,
+                    progress: {
+                      completedDates: state.completedDates,
+                      quizResults: state.quizResults,
+                      xp: state.xp,
+                      stats: state.stats,
+                    },
+                    customQuestions: state.customQuestions,
+                  },
+                  null,
+                  2,
+                ),
+                'vision-2031-curriculum-progress.json',
+                'application/json',
+              )
+            }
+          >
+            <Download /> Curriculum JSON
+          </Button>
           <Button onClick={() => window.print()}>Print</Button>
         </div>
       </div>
