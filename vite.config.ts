@@ -55,7 +55,12 @@ export default defineConfig({
       transformIndexHtml: {
         order: 'pre',
         handler(html, context) {
-          if (context.path.endsWith('/app.html')) return html;
+          if (
+            context.path.endsWith('/app.html') ||
+            context.path.endsWith('/auth-callback.html')
+          ) {
+            return html;
+          }
           return {
             html,
             tags: [
@@ -79,6 +84,12 @@ export default defineConfig({
                 injectTo: 'head',
               },
               {
+                tag: 'script',
+                children:
+                  "try{localStorage.removeItem('supa_url');localStorage.removeItem('supa_key')}catch(e){}",
+                injectTo: 'body-prepend',
+              },
+              {
                 tag: 'nav',
                 attrs: {
                   class: 'full-app-dock',
@@ -99,6 +110,11 @@ export default defineConfig({
                 attrs: { type: 'module', src: '/src/landingBridge.ts' },
                 injectTo: 'body',
               },
+              {
+                tag: 'script',
+                attrs: { type: 'module', src: '/src/cloudMemory.ts' },
+                injectTo: 'body',
+              },
             ],
           };
         },
@@ -110,6 +126,7 @@ export default defineConfig({
       input: {
         simulation: resolve(rootDir, 'index.html'),
         app: resolve(rootDir, 'app.html'),
+        authCallback: resolve(rootDir, 'auth-callback.html'),
       },
     },
   },
