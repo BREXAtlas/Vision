@@ -1,6 +1,9 @@
+import { fileURLToPath } from 'node:url';
 import { resolve } from 'node:path';
 import { defineConfig } from 'vitest/config';
 import react from '@vitejs/plugin-react';
+
+const rootDir = fileURLToPath(new URL('.', import.meta.url));
 
 const dockStyles = `
 .full-app-dock {
@@ -49,61 +52,64 @@ export default defineConfig({
     react(),
     {
       name: 'vision-life-navigation',
-      transformIndexHtml(html, context) {
-        if (context.path.endsWith('/app.html')) return html;
-        return {
-          html,
-          tags: [
-            {
-              tag: 'meta',
-              attrs: {
-                name: 'description',
-                content:
-                  'Live the McGaffie future-day vision, learn the mechanics beneath it, and continue into the complete Vision 2031 five-year game.',
+      transformIndexHtml: {
+        order: 'pre',
+        handler(html, context) {
+          if (context.path.endsWith('/app.html')) return html;
+          return {
+            html,
+            tags: [
+              {
+                tag: 'meta',
+                attrs: {
+                  name: 'description',
+                  content:
+                    'Live the McGaffie future-day vision, learn the mechanics beneath it, and continue into the complete Vision 2031 five-year game.',
+                },
+                injectTo: 'head',
               },
-              injectTo: 'head',
-            },
-            {
-              tag: 'meta',
-              attrs: { name: 'theme-color', content: '#080f24' },
-              injectTo: 'head',
-            },
-            {
-              tag: 'style',
-              children: dockStyles,
-              injectTo: 'head',
-            },
-            {
-              tag: 'nav',
-              attrs: {
-                class: 'full-app-dock',
-                'aria-label': 'Complete Vision 2031 application',
+              {
+                tag: 'meta',
+                attrs: { name: 'theme-color', content: '#080f24' },
+                injectTo: 'head',
               },
-              children: `
-                <a class="primary-link" data-full-app-link href="./app.html#/">Open Full Vision 2031</a>
-                <a data-full-app-link href="./app.html#/today">Daily Chapter</a>
-                <a data-full-app-link href="./app.html#/timeline">15-Quarter Map</a>
-                <a data-full-app-link href="./app.html#/academy">Academy</a>
-                <a data-full-app-link href="./app.html#/wealth-lab">Wealth Lab</a>
-                <a data-full-app-link href="./app.html#/projects">Projects</a>
-              `,
-              injectTo: 'body-prepend',
-            },
-            {
-              tag: 'script',
-              attrs: { type: 'module', src: '/src/landingBridge.ts' },
-              injectTo: 'body',
-            },
-          ],
-        };
+              {
+                tag: 'style',
+                children: dockStyles,
+                injectTo: 'head',
+              },
+              {
+                tag: 'nav',
+                attrs: {
+                  class: 'full-app-dock',
+                  'aria-label': 'Complete Vision 2031 application',
+                },
+                children: `
+                  <a class="primary-link" data-full-app-link href="./app.html#/">Open Full Vision 2031</a>
+                  <a data-full-app-link href="./app.html#/today">Daily Chapter</a>
+                  <a data-full-app-link href="./app.html#/timeline">15-Quarter Map</a>
+                  <a data-full-app-link href="./app.html#/academy">Academy</a>
+                  <a data-full-app-link href="./app.html#/wealth-lab">Wealth Lab</a>
+                  <a data-full-app-link href="./app.html#/projects">Projects</a>
+                `,
+                injectTo: 'body-prepend',
+              },
+              {
+                tag: 'script',
+                attrs: { type: 'module', src: '/src/landingBridge.ts' },
+                injectTo: 'body',
+              },
+            ],
+          };
+        },
       },
     },
   ],
   build: {
     rollupOptions: {
       input: {
-        simulation: resolve(__dirname, 'index.html'),
-        app: resolve(__dirname, 'app.html'),
+        simulation: resolve(rootDir, 'index.html'),
+        app: resolve(rootDir, 'app.html'),
       },
     },
   },
