@@ -1,1 +1,580 @@
-<!doctype html><html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><meta name="theme-color" content="#07111f"/><meta name="description" content="A five-year vision, leadership, entrepreneurship, research, and wealth-literacy game."/><title>Vision 2031 · The McGaffie Legacy Game</title></head><body><a class="skip-link" href="#main">Skip to content</a><div id="root"></div><script type="module" src="/src/main.tsx"></script></body></html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vision Life — The McGaffie Simulation</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --midnight:#080F24; --panel:#0E1834; --panel2:#131F42; --line:#243259;
+  --gold:#D4AF37; --champagne:#F0DA9B; --cream:#F3EDDD; --dim:#9BA6C4;
+  --teal:#2FA8AB; --good:#5CC98B; --bad:#E07A6B;
+  --serif:'Cormorant Garamond',Georgia,serif; --sans:'Inter',system-ui,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--midnight);color:var(--cream);font-family:var(--sans);min-height:100vh;
+  background-image:radial-gradient(ellipse 80% 50% at 50% -10%,rgba(212,175,55,.10),transparent),
+  radial-gradient(ellipse 60% 40% at 90% 110%,rgba(47,168,171,.07),transparent);}
+.wrap{max-width:920px;margin:0 auto;padding:18px 14px 90px}
+header{text-align:center;padding:26px 10px 14px}
+.eyebrow{font-size:11px;letter-spacing:.28em;text-transform:uppercase;color:var(--gold);font-weight:600}
+h1{font-family:var(--serif);font-weight:700;font-size:clamp(30px,5.4vw,46px);line-height:1.05;margin:8px 0 4px;
+  background:linear-gradient(120deg,var(--champagne),var(--gold) 55%,#B8860B);-webkit-background-clip:text;background-clip:text;color:transparent}
+.sub{color:var(--dim);font-size:14px;max-width:520px;margin:0 auto}
+.statbar{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin:18px 0 6px}
+.stat{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:8px 14px;text-align:center;min-width:86px}
+.stat b{display:block;font-family:var(--serif);font-size:22px;color:var(--champagne)}
+.stat span{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim)}
+/* Day ribbon — signature element */
+.ribbon{position:relative;margin:20px 4px 8px;height:56px}
+.ribbon .track{position:absolute;top:26px;left:0;right:0;height:3px;background:var(--line);border-radius:2px}
+.ribbon .fill{position:absolute;top:26px;left:0;height:3px;background:linear-gradient(90deg,var(--gold),var(--champagne));border-radius:2px;transition:width .8s ease;box-shadow:0 0 12px rgba(212,175,55,.5)}
+.ribbon .node{position:absolute;top:20px;width:15px;height:15px;border-radius:50%;background:var(--panel);border:2px solid var(--line);transform:translateX(-50%);transition:.4s}
+.ribbon .node.done{background:var(--gold);border-color:var(--champagne)}
+.ribbon .node.now{border-color:var(--gold);box-shadow:0 0 0 4px rgba(212,175,55,.25)}
+.ribbon .tlabel{position:absolute;top:44px;transform:translateX(-50%);font-size:9px;color:var(--dim);letter-spacing:.05em;white-space:nowrap}
+nav.tabs{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;margin:14px 0 18px}
+.tab{background:var(--panel);border:1px solid var(--line);color:var(--dim);border-radius:99px;padding:9px 16px;font-size:13px;font-weight:600;cursor:pointer;font-family:var(--sans)}
+.tab.on{background:linear-gradient(120deg,#2a2410,#3a3115);border-color:var(--gold);color:var(--champagne)}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:20px;margin-bottom:14px}
+.scene-art{border-radius:12px;overflow:hidden;margin:-6px -6px 14px;border:1px solid var(--line)}
+.scene-art svg{display:block;width:100%;height:auto}
+.stime{font-size:11px;letter-spacing:.2em;color:var(--teal);text-transform:uppercase;font-weight:700}
+h2.stitle{font-family:var(--serif);font-size:clamp(22px,3.6vw,30px);color:var(--champagne);margin:4px 0 10px;font-weight:600}
+.narrative{font-size:15px;line-height:1.65;color:var(--cream)}
+.narrative em{color:var(--champagne)}
+.lesson{margin-top:14px;background:var(--panel2);border-left:3px solid var(--gold);border-radius:0 10px 10px 0;padding:12px 14px}
+.lesson .ltag{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);font-weight:700}
+.lesson p{font-size:13.5px;line-height:1.6;color:var(--dim);margin-top:4px}
+.choices{display:flex;flex-direction:column;gap:8px;margin-top:16px}
+.choice{background:var(--panel2);border:1px solid var(--line);color:var(--cream);border-radius:10px;padding:12px 14px;text-align:left;font-size:14px;cursor:pointer;font-family:var(--sans);transition:.15s}
+.choice:hover{border-color:var(--gold);transform:translateX(3px)}
+.reply{margin-top:12px;padding:12px 14px;border-radius:10px;background:rgba(212,175,55,.08);border:1px solid rgba(212,175,55,.3);font-size:14px;line-height:1.6}
+.memory{font-size:12px;color:var(--teal);margin-top:10px;font-style:italic}
+.btn{background:linear-gradient(120deg,var(--gold),#B8860B);color:#141002;border:none;border-radius:10px;padding:12px 22px;font-weight:700;font-size:14px;cursor:pointer;font-family:var(--sans);letter-spacing:.02em}
+.btn.ghost{background:transparent;border:1px solid var(--line);color:var(--dim)}
+.btn:disabled{opacity:.4;cursor:default}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+input,textarea,select{background:var(--panel2);border:1px solid var(--line);border-radius:10px;color:var(--cream);padding:11px 12px;font-family:var(--sans);font-size:14px;width:100%}
+label{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);font-weight:600;display:block;margin:10px 0 5px}
+.pill{display:inline-block;background:var(--panel2);border:1px solid var(--line);border-radius:99px;padding:4px 10px;font-size:11px;color:var(--dim);margin:2px}
+.toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:var(--panel2);border:1px solid var(--gold);color:var(--champagne);padding:10px 18px;border-radius:99px;font-size:13px;opacity:0;transition:.3s;pointer-events:none;z-index:50}
+.toast.show{opacity:1;bottom:30px}
+.quiz-opt{display:block;width:100%;text-align:left;background:var(--panel2);border:1px solid var(--line);color:var(--cream);border-radius:10px;padding:12px;margin:6px 0;cursor:pointer;font-size:14px;font-family:var(--sans)}
+.quiz-opt.right{border-color:var(--good);background:rgba(92,201,139,.1)}
+.quiz-opt.wrong{border-color:var(--bad);background:rgba(224,122,107,.1)}
+.breath{width:150px;height:150px;border-radius:50%;margin:26px auto;background:radial-gradient(circle,rgba(212,175,55,.35),rgba(212,175,55,.05));border:2px solid var(--gold);display:flex;align-items:center;justify-content:center;font-family:var(--serif);font-size:18px;color:var(--champagne);transition:transform 4s ease-in-out}
+.breath.in{transform:scale(1.35)}
+.tl-item{border-left:2px solid var(--line);padding:0 0 16px 16px;position:relative}
+.tl-item:before{content:"";position:absolute;left:-5px;top:3px;width:8px;height:8px;border-radius:50%;background:var(--gold)}
+.tl-item .td{font-size:11px;color:var(--teal);letter-spacing:.1em;text-transform:uppercase}
+.tl-item p{font-size:13.5px;color:var(--dim);line-height:1.55;margin-top:2px}
+.hidden{display:none}
+@media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <div class="eyebrow">BrexAtlas · Vision Life</div>
+  <h1>I Create My Own Wealth</h1>
+  <div class="sub">The McGaffie Simulation — live the life, learn the mechanics, build the bridge.</div>
+</header>
+
+<div class="statbar">
+  <div class="stat"><b id="stDay">1</b><span>Day</span></div>
+  <div class="stat"><b id="stPts">0</b><span>Points</span></div>
+  <div class="stat"><b id="stStreak">0</b><span>Streak</span></div>
+  <div class="stat"><b id="stIQ">0%</b><span>Wealth IQ</span></div>
+</div>
+
+<div class="ribbon" id="ribbon"></div>
+
+<nav class="tabs">
+  <button class="tab on" data-v="today">Today's Story</button>
+  <button class="tab" data-v="visualize">Visualize</button>
+  <button class="tab" data-v="learn">Knowledge Check</button>
+  <button class="tab" data-v="empire">My Empire</button>
+  <button class="tab" data-v="settings">Memory</button>
+</nav>
+
+<main id="view"></main>
+</div>
+<div class="toast" id="toast"></div>
+<script>
+/* ============ STATE & STORAGE (window.storage → localStorage → memory, + Supabase sync) ============ */
+const DEFAULT={day:1,points:0,streak:0,lastCheckin:null,sceneIdx:0,decisions:{},log:[],ventures:[],quiz:{asked:0,right:0},vizDone:{},flags:{},family:{},arc:{on:false,d:0}};
+let S=JSON.parse(JSON.stringify(DEFAULT));
+let mem=null;
+function lsGet(k){try{return localStorage.getItem(k)}catch(e){return null}}
+function lsSet(k,v){try{localStorage.setItem(k,v)}catch(e){}}
+async function loadState(){
+  try{if(window.storage){const r=await window.storage.get('visionlife');if(r&&r.value){S=Object.assign({},DEFAULT,JSON.parse(r.value));return}}}catch(e){}
+  const v=lsGet('visionlife');if(v){S=Object.assign({},DEFAULT,JSON.parse(v));return}
+  if(mem)S=mem;
+  await supaLoad();
+}
+let saveT=null;
+async function saveState(){
+  mem=S;const j=JSON.stringify(S);
+  try{if(window.storage)await window.storage.set('visionlife',j)}catch(e){}
+  lsSet('visionlife',j);
+  clearTimeout(saveT);saveT=setTimeout(supaSave,1200);
+}
+/* Supabase */
+function supaCfg(){const u=lsGet('supa_url'),k=lsGet('supa_key');return(u&&k)?{u:u.replace(/\/$/,''),k}:null}
+async function supaSave(){const c=supaCfg();if(!c)return;
+  try{await fetch(c.u+'/rest/v1/vision_state?on_conflict=user_key',{method:'POST',
+    headers:{'apikey':c.k,'Authorization':'Bearer '+c.k,'Content-Type':'application/json','Prefer':'resolution=merge-duplicates'},
+    body:JSON.stringify({user_key:'lawrence',state:S,updated_at:new Date().toISOString()})});
+    setCloud('☁ Synced to Supabase');}catch(e){setCloud('☁ Sync failed — check Memory tab')}}
+async function supaLoad(){const c=supaCfg();if(!c)return false;
+  try{const r=await fetch(c.u+'/rest/v1/vision_state?user_key=eq.lawrence&select=state',{headers:{'apikey':c.k,'Authorization':'Bearer '+c.k}});
+    const d=await r.json();if(d&&d[0]&&d[0].state){S=Object.assign({},DEFAULT,d[0].state);return true}}catch(e){}return false}
+function setCloud(t){const el=document.getElementById('cloudMsg');if(el)el.textContent=t}
+function toast(t){const el=document.getElementById('toast');el.textContent=t;el.classList.add('show');setTimeout(()=>el.classList.remove('show'),2200)}
+function addPts(n,why){S.points+=n;toast('+'+n+' pts — '+why);refreshStats()}
+function logEvent(txt){S.log.unshift({d:S.day,date:new Date().toLocaleDateString(),t:txt});if(S.log.length>200)S.log.pop()}
+function refreshStats(){
+  stDay.textContent=S.day;stPts.textContent=S.points;stStreak.textContent=S.streak;
+  stIQ.textContent=(S.quiz.asked?Math.round(100*S.quiz.right/S.quiz.asked):0)+'%';
+}
+/* ============ SVG SCENE ART ============ */
+function art(kind){
+  const sky={dawn:['#1a2a5e','#c98a4b','#e8b86d'],day:['#12224e','#2FA8AB','#0E1834'],dusk:['#0d1330','#7a4a8a','#d4af37'],night:['#060a1c','#0E1834','#1a2a5e']};
+  const map={wake:'dawn',gym:'dawn',car:'day',board:'day',bank:'day',lunch:'day',jet:'dusk',stage:'night',home:'night',office:'day',trust:'day',found:'day',asado:'dusk',venture:'day',deal:'day',yacht:'day',ba:'dusk',movie:'night'};
+  const c=sky[map[kind]||'day'];
+  let extra='';
+  if(kind==='jet')extra='<path d="M80 95 L210 78 L330 88 L300 96 L120 104 Z" fill="#e8e2d0"/><ellipse cx="300" cy="84" rx="26" ry="7" fill="#e8e2d0"/><path d="M195 80 L175 55 L188 55 L215 78 Z" fill="#cfc8b4"/>';
+  if(kind==='wake'||kind==='home')extra='<rect x="240" y="70" width="130" height="55" rx="4" fill="#0b1226" stroke="#D4AF37" stroke-width="1"/><rect x="252" y="80" width="24" height="34" fill="#f0da9b" opacity=".8"/><rect x="286" y="80" width="24" height="34" fill="#f0da9b" opacity=".5"/><rect x="20" y="112" width="360" height="14" fill="#0f3b4a" opacity=".8"/>';
+  if(kind==='board'||kind==='office'||kind==='deal'||kind==='venture')extra='<rect x="60" y="40" width="26" height="86" fill="#0b1226"/><rect x="96" y="55" width="30" height="71" fill="#101b3c"/><rect x="136" y="30" width="24" height="96" fill="#0b1226"/><rect x="300" y="48" width="34" height="78" fill="#101b3c"/>'+[64,70,76,100,106,140,146,306,314,322].map((x,i)=>`<rect x="${x}" y="${46+(i%4)*16}" width="4" height="6" fill="#f0da9b" opacity=".7"/>`).join('');
+  if(kind==='car')extra='<rect x="120" y="88" width="160" height="26" rx="12" fill="#0a0f22" stroke="#D4AF37" stroke-width="1.2"/><circle cx="155" cy="116" r="10" fill="#060a1c" stroke="#9BA6C4"/><circle cx="245" cy="116" r="10" fill="#060a1c" stroke="#9BA6C4"/><path d="M145 88 L165 72 L235 72 L255 88 Z" fill="#0a0f22" stroke="#D4AF37" stroke-width="1"/>';
+  if(kind==='yacht'||kind==='ba')extra='<path d="M110 100 L300 100 L280 118 L130 118 Z" fill="#e8e2d0"/><rect x="160" y="82" width="90" height="18" rx="4" fill="#cfc8b4"/><rect x="185" y="70" width="40" height="12" rx="3" fill="#e8e2d0"/><rect x="20" y="118" width="360" height="10" fill="#0f3b4a"/>';
+  if(kind==='stage')extra='<rect x="140" y="60" width="120" height="60" fill="#101b3c" stroke="#D4AF37"/><circle cx="200" cy="85" r="12" fill="#f0da9b" opacity=".9"/><rect x="196" y="97" width="8" height="23" fill="#0b1226"/>';
+  if(kind==='asado'||kind==='lunch'||kind==='movie'||kind==='gym'||kind==='found'||kind==='trust'||kind==='bank')extra='<circle cx="330" cy="45" r="16" fill="#f0da9b" opacity=".85"/><rect x="60" y="95" width="280" height="8" rx="4" fill="#D4AF37" opacity=".5"/>';
+  return `<div class="scene-art"><svg viewBox="0 0 400 130" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="scene illustration">
+  <defs><linearGradient id="g${kind}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${c[0]}"/><stop offset=".6" stop-color="${c[1]}"/><stop offset="1" stop-color="${c[2]}"/></linearGradient></defs>
+  <rect width="400" height="130" fill="url(#g${kind})"/>${extra}
+  <rect width="400" height="130" fill="none" stroke="rgba(212,175,55,.35)"/></svg></div>`;
+}
+</script>
+<script>
+/* ============ STORY ENGINE ============ */
+function latestVenture(){return S.ventures.length?S.ventures[S.ventures.length-1]:null}
+function ventureLine(){const v=latestVenture();return v?`<em>${v.name}</em>`:'<em>your newest venture</em>'}
+function recall(key,ifYes,ifNo,ifNone){const d=S.decisions[key];if(d===undefined)return ifNone||'';return d?ifYes:ifNo}
+/* Family names — set once in My Empire, used everywhere */
+function fam(k,fb){return (S.family&&S.family[k])?S.family[k]:fb}
+const W=()=>fam('wife','your wife'), G18=()=>fam('g18','your eldest daughter'), G17=()=>fam('g17','your 17-year-old'), G8=()=>fam('g8','your little one'), BOY=()=>fam('boy','your son');
+
+const DAYS=[
+/* ---- DAY TYPE A: The Houston Operator Day ---- */
+[
+{k:'wake',time:'5:45 AM — The Estate, Crosby Hills',title:'You wake before the alarm',
+ n:s=>`Glass wall, infinity pool, first light over four acres. Fun fact about this house: it's not in your name. A company you own (McGaffie Holdings LLC) owns it, and a family trust owns that company. You reach for the journal, not the phone. ${recall('phoneFirst','Yesterday you grabbed the phone first and felt scattered all morning. Not today.','Your discipline from yesterday carries over — the mind is still yours before the world gets it.','')}`,
+ lesson:`Simple version: rich families never put big things (houses, cars, boats) in their own name. They put them in an LLC — a company — and a trust owns the company. Why? 1) If someone sues, they sue the company, not you. 2) Public records show a company name, not yours. 3) When you pass away, the trust hands it to your kids smoothly, with way less tax.`,
+ ch:[{t:'Journal + read one page of the vision doc (protect the morning)',v:true,key:'phoneFirst',val:false,r:'Ten quiet minutes. You write one line: "The empire is a byproduct of the mornings."'},
+     {t:'Check the phone — markets, messages, news',v:false,key:'phoneFirst',val:true,r:'Forty-one notifications later, your attention is fractured before sunrise. The story remembers this.'}]},
+{k:'gym',time:'6:30 AM — Gym & Breakfast Terrace',title:'Trainer, then family',
+ n:s=>`Your trainer runs you through strength work — health is the asset every other asset depends on. On the terrace, ${W()} is on a call with Buenos Aires, half Spanish, half laughter. ${G8()} appears, sleepy, and claims your lap without asking. ${G17()} and ${G18()} are debating college housing like it's a Senate hearing. ${BOY()} wants pancakes. The chef obliges.`,
+ lesson:`Simple version: the trainer, the chef — they're not paid out of your pocket like a babysitter. They're employees of your family's little management company (the "family office"). It handles their paychecks, taxes, and insurance properly. Running a wealthy life is literally running a small business.`,
+ ch:[{t:'Linger 15 extra minutes with the kids',v:true,r:`This is the "Time Freedom & Family" panel of the board. ${G8()} tells you a joke that makes zero sense and you laugh anyway.`},
+     {t:'Cut breakfast short — big day ahead',v:false,r:`${G8()} watches you go. You built the empire to have this table, not the other way around. The story remembers.`}]},
+{k:'car',time:'7:45 AM — The Cullinan',title:'Marcus pulls around',
+ n:s=>`Marcus — 12 years in executive protection, former Houston PD — opens the door. A driver at this level isn't showing off. It's safety, plus something better: every minute he drives is a minute you can work, think, or rest. ${recall('phoneFirst','You spend the ride catching up on the messages you already burned energy on.','Fresh mind — you clear two important calls in twenty minutes.','')}`,
+ lesson:`Simple version: wealthy people buy back their TIME first, toys later. If your working hour earns you thousands and a driver costs about $55 an hour, every driven hour is pure profit. Marcus isn't a luxury — he's math.`,
+ ch:[{t:'Take the investor call live from the car',v:true,r:'Deal moves forward. The back seat is your second office.'},
+     {t:'Ride in silence and think',v:true,r:'Strategic silence. Some of your best ideas started as unbroken thoughts on Highway 90.'}]},
+{k:'board',time:'8:30 AM — BrexAtlas HQ',title:'Executive standup + the venture desk',
+ n:s=>{const v=latestVenture();return `Your CEO runs the meeting — you hired someone to run the company day-to-day because billionaires <em>own</em> companies, they don't manage them. Then the venture desk: ${v?`the team shows progress on ${ventureLine()} — ${v.desc||'your latest build'}. It now lives as its own small company inside McGaffie Holdings, with its own numbers.`:`the team asks what's next. (Add your real projects in <em>My Empire</em> and they show up right here.)`} You ask three good questions and leave. That's the whole job.`},
+ lesson:`Simple version: each business you start gets its own LLC under one parent company — like eggs in separate cartons. If one venture fails or gets sued, the others don't even feel it. That's how empires survive experiments.`,
+ ch:[{t:'Greenlight more resources for the venture',v:true,key:'backedVenture',val:true,r:'Money follows belief. The team gets two more builders and a 90-day target.'},
+     {t:'Hold — ask for proof people want it first',v:true,key:'backedVenture',val:false,r:'Prove it free before you pay to grow it. You learned that rule when the money was small, and it still runs the show now that it is big.'}]},
+{k:'bank',time:'11:15 AM — Private Banker, 40th Floor',title:'The quarterly review',
+ n:s=>`Your private banker walks you through the numbers: the $20M isn't sitting still — it's spread out and working, sending you roughly $80K a month without touching the pile itself. She slides a new investment across the table. You don't say yes or no. You say: "My team will look at it." <em>You never decide big things alone anymore.</em>`,
+ lesson:`Simple version: $20M never sits in a checking account (the government only insures $250K per bank!). Instead: a little cash for bills, a chunk in T-bills (super-safe loans to the U.S. government that pay you interest), a big chunk in stocks and bonds, and some in special deals. At 4–5% a year, $20M pays you $800K–$1M a year just for existing. The money earns faster than a good life spends.`,
+ ch:[{t:'Send the deal to your team to research',v:true,r:'Process over impulse. Every big loss in your past came from deciding fast and alone.'},
+     {t:'Pass — you don\'t understand it',v:true,r:'"Never invest in what you can\'t explain to your 8-year-old." Warren Buffett would nod.'}]},
+{k:'lunch',time:'12:30 PM — Lunch',title:'Raising a steward, not an heir',
+ n:s=>`${G18()} starts college in the fall. Over lunch you show her how her trust works: she gets pieces of it at 25, 30, and 35 — not one giant pile at 18. She asks why you didn't just give it to her now. You smile: "Because I love you more than that."`,
+ lesson:`Simple version: handing a young person a fortune all at once usually wrecks them — it's one of the most repeated stories in wealthy families. So trusts release money in stages, as maturity catches up to the amount. You're not giving your kids money. You're giving them money PLUS time to become the person who can handle it.`,
+ ch:[{t:'Give her one real job in the family foundation',v:true,key:'daughterFoundation',val:true,r:`${G18()} will run the STEM-lab grant review this fall. Real responsibility teaches what allowance never could.`},
+     {t:'Keep her focused on school only',v:true,key:'daughterFoundation',val:false,r:'Books first. The empire will still be here at graduation.'}]},
+{k:'jet',time:'2:00 PM — Hobby Airport, Private Terminal',title:'Car to cabin in four minutes',
+ n:s=>`Marcus drives right onto the tarmac at the FBO — that's the private jet terminal. No security lines, no gates, no waiting. The jet is fueled, your pilots ready. Miami in two hours for tonight's speech. From 41,000 feet, you FaceTime ${BOY()} and walk him through his math homework. He pretends he didn't need the help. He needed the help.`,
+ lesson:`Simple version: buying a jet costs about $45M plus $3M every year to keep it flying. That's why smart wealthy people start by buying a SHARE of a jet (companies like NetJets sell you, say, 1/8 of one) and only buy their own when they fly constantly. Big rule of rich life: the jet is the LAST thing you buy, never the first.`,
+ ch:[{t:'Work the flight — polish the speech',v:true,r:'The talk gets a new closing line: "The statement was I CREATE my own wealth — present tense, before the evidence existed."'},
+     {t:'Sleep 90 minutes',v:true,r:'Rest is a strategy, not a pause. You land sharp.'}]},
+{k:'stage',time:'7:00 PM — Miami, keynote',title:'"I Create My Own Wealth"',
+ n:s=>`Two thousand entrepreneurs. You tell them about a vision board on a wall in Crosby, Texas — made years before any of this existed. The $150K speaking fee goes straight to the McGaffie Foundation. ${recall('daughterFoundation',`You mention ${G18()} is taking over a grant program, and the room applauds.`,'','')}`,
+ lesson:`Simple version: a private foundation is your family's own charity. The law says it must give away at least 5% of its money each year, and the money you put in lowered your tax bill. It's generosity with an engine attached.`,
+ ch:[{t:'Stay for the founder meet-and-greet',v:true,r:'Three founders pitch you. One is building for students. You take a card — good deals find generous people.'},
+     {t:'Wheels up immediately — get home',v:true,r:`Home before midnight. ${W()} waited up. ${G8()} fell asleep in your bed again. You do not move her.`}]}
+],
+/* ---- DAY TYPE B: The Stewardship Day ---- */
+[
+{k:'wake',time:'6:00 AM — The Estate',title:'A no-jet day',
+ n:s=>`Some days are for the machinery of wealth, not the shine of it. Coffee with ${W()} on the terrace — she teases you in Spanish about the vision board still hanging in your office. "It worked, mi amor. Leave it." ${recall('backedVenture','Your phone buzzes: the venture you backed shipped something new overnight.','The venture team sends their free-growth numbers — you were right to ask for proof first.','')}`,
+ lesson:`Simple version: boring days ARE wealth days. Fortunes don't usually die in dramatic crashes — they leak away through skipped maintenance: taxes not planned, insurance not updated, trusts not reviewed. The unglamorous meetings are the moat.`,
+ ch:[{t:'Do the morning visualization — even now, at the top',v:true,r:'You never stopped the practice that built this. Vision isn\'t just for the climb; it\'s the steering wheel.'},
+     {t:'Skip it — you\'ve arrived',v:false,r:'Arrival is a myth. The board was never about the jet — it was about who you become. The story remembers.'}]},
+{k:'office',time:'9:00 AM — McGaffie Family Office',title:'Your personal Wall Street',
+ n:s=>`Twelve people whose entire job is your family's money. Today's big topic: instead of selling your company shares when you need cash, you BORROW against them — like a home equity loan, but on stock. No sale means no capital gains tax. It has a famous nickname: <em>buy, borrow, die.</em>`,
+ lesson:`Simple version — the #1 billionaire money trick: say you need $50M. Sell stock, and the tax man takes $10M+. Borrow against the stock instead, and the tax bill is ZERO — you just pay low interest. Later, your heirs inherit the stock with the old gains wiped clean for taxes. Buy assets. Borrow to live. Pass it on. Totally legal, totally standard.`,
+ ch:[{t:'Keep borrowing low and safe',v:true,key:'lowLeverage',val:true,r:'Borrowing too much against stock is how fortunes die in market crashes. Low debt means you sleep through storms.'},
+     {t:'Borrow more to chase a hot deal',v:false,key:'lowLeverage',val:false,r:'Your money chief logs her objection in writing. Debt is a chainsaw: useful, unforgiving. The story remembers.'}]},
+{k:'g17',time:'10:30 AM — The Kitchen Counter',title:'A pitch at the counter',
+ n:s=>`${G17()} slides her laptop across the counter. A full pitch deck — she wants to start a small online brand with her summer job savings. She's watched you her whole life; the slides even have a "organic before paid" section. You keep a straight face. Inside, you are not keeping a straight face.`,
+ lesson:`Simple version: any kid with earned income (a real job) can have a Roth IRA — a special account where money grows and comes out TAX-FREE in retirement. A few thousand invested at 17 can quietly become six figures by 60. Teaching your kids to invest early is worth more than anything you leave them.`,
+ ch:[{t:'Match her savings dollar-for-dollar as her first investor',v:true,key:'backedG17',val:true,r:`Deal. You make her sign a one-page "term sheet" so she learns what real money feels like. ${G17()} rolls her eyes and signs. She frames it later.`},
+     {t:'Make her pitch the whole family at dinner first',v:true,key:'backedG17',val:false,r:`Tonight, the dinner table becomes a boardroom. ${G8()} demands equity in exchange for her vote. She's eight. You're terrified of her future.`}]},
+{k:'trust',time:'12:00 PM — Estate Attorney',title:'The 100-year meeting',
+ n:s=>`Annual trust review. Your attorney confirms the structure now survives you by a century: the family trust is funded, the life insurance sits in its own special trust so the payout skips estate tax, and there's a "family constitution" ${W()} insisted on — your values, written down like company bylaws, for grandkids you'll never meet.`,
+ lesson:`Simple version: when very wealthy people pass away, the government can take around 40% of everything above a certain amount — unless it was planned. Trusts are the planning. The boring paperwork nobody sees IS the generational wealth.`,
+ ch:[{t:'Add a rule: kids must work 5 years anywhere before running family money',v:true,r:'Old Rockefeller trick. Competence before keys.'},
+     {t:'Top up all four kids\' trusts equally today',v:true,r:'Signed. Somewhere, your grandchildren\'s grandchildren just got quieter lives.'}]},
+{k:'found',time:'2:00 PM — Foundation Site Visit',title:'The STEM lab, Houston east side',
+ n:s=>`Third-graders run experiments in a lab your foundation built. One kid — sharp, loud, unmistakably like you at eight — explains his project without breathing once. ${recall('daughterFoundation',`${G18()} takes notes beside you; this grant round is hers now.`,'','')} The board panel said "Generous Investor & Influential Leader." It's the only panel that makes your eyes sting.`,
+ lesson:`Simple version: giving isn't just writing checks — structured right, it lowers your taxes, involves your kids, and outlives you. And it's the part of wealth that makes the rest of it mean something.`,
+ ch:[{t:'Fund three more labs this year',v:true,r:'Approved before you reach the car. Some returns are measured in kids.'},
+     {t:'Start a scholarship in your mother\'s name',v:true,r:'The McGaffie legacy gets a second name on it. Marcus pretends not to see you wipe your eyes.'}]},
+{k:'asado',time:'6:30 PM — Asado Night',title:'Argentina comes to Texas',
+ n:s=>`${W()} runs the grill the way her father taught her — Texas brisket has learned to share the yard with Argentine ribs. Spanish, English, and teenager fly across the table. ${BOY()} beats you at chess in front of everyone. You demand a rematch. You lose again. ${recall('backedG17',`${G17()} announces you're her first investor. Applause. ${BOY()} asks if HE can pitch something. It's a snack empire. You take the meeting.`,'','')}`,
+ lesson:`Simple version: researchers who study wealthy families that stay strong for generations keep finding the same secret, and it isn't money — it's rituals. Meals, traditions, stories, one table. The trust holds the money. The table holds the family.`,
+ ch:[{t:'Announce the August Buenos Aires trip',v:true,key:'baTrip',val:true,r:'The table erupts. Abuela will be told tonight, three time zones be damned. (The Buenos Aires storyline is now waiting for you on the Today tab.)'},
+     {t:'Keep it a surprise a little longer',v:true,key:'baTrip',val:false,r:`You and ${W()} trade a look. Some secrets are just gift-wrap. (You can launch the Buenos Aires storyline anytime from the Today tab.)`}]}
+],
+/* ---- DAY TYPE C: The Builder Day ---- */
+[
+{k:'wake',time:'5:45 AM — The Estate',title:'Deal day',
+ n:s=>`A journal line from years ago, taped in your office: <em>"Organic before paid. Cash flow before glamour. Family before all of it."</em> Today tests all three. ${recall('lowLeverage','Because you kept your borrowing low, today\'s market dip is background noise.','That extra borrowing from last quarter is why today\'s market dip has your money chief calling early.','')}`,
+ lesson:`Simple version: write your money rules down NOW, while things are small. Rules made in calm moments protect you in crazy ones. Every great investor keeps a checklist for exactly this reason.`,
+ ch:[{t:'Reread your written rules before the deal',v:true,r:'Ritual before risk.'},
+     {t:'Trust your gut today',v:true,r:'Gut feeling is just pattern recognition you earned the hard way. Yours has enough scars to be worth hearing.'}]},
+{k:'venture',time:'9:00 AM — Venture Review',title:'The portfolio walks in',
+ n:s=>{const vs=S.ventures;return vs.length?`One by one, your real ventures report in: ${vs.map(v=>`<em>${v.name}</em>${v.desc?' — '+v.desc:''}`).join('; ')}. Each one is its own small company under McGaffie Holdings with its own leader. You built the flywheel: businesses make cash → cash buys assets that pay you → those payments fund new businesses.`:`The venture desk is quiet — add what you're actually building in <em>My Empire</em> and this room fills with YOUR companies. The simulation runs on your real life.`},
+ lesson:`Simple version: wealth is a loop, not a lottery ticket. Businesses create cash. Cash buys things that pay you monthly (stocks, bonds, property). Those payments fund the next business. Winners get big, and the loop spins faster every year. Wealth is a system.`,
+ ch:[{t:'Double down on the strongest venture',v:true,r:'Focus builds fortunes; spreading out protects them. You\'re still in the building phase — press what\'s working.'},
+     {t:'Put the weakest one on pause',v:true,r:'Ending projects kindly is a founder superpower. Energy flows to what\'s working.'}]},
+{k:'deal',time:'11:30 AM — Term Sheet',title:'Someone wants to buy one of yours',
+ n:s=>{const v=latestVenture();return `A big company offers to buy ${v?ventureLine():'one of your platform companies'} for 8 times its yearly revenue. Your lawyer reads the fine print. Your tax director whispers, "make them buy the stock, not the assets — better taxes for us." They want an answer by Friday.`},
+ lesson:`Simple version: HOW you sell a company changes how much tax you pay — sometimes by millions. And there's a special rule (called QSBS) that can make up to $10M+ of your profit completely TAX-FREE... but only if the company was set up the right way YEARS earlier. Translation: exits are won at the starting line. Set up your companies properly from day one.`,
+ ch:[{t:'Sell — put the money back into the machine',v:true,key:'soldCo',val:true,r:'The wire clears in 30 days. The cash goes into safe treasuries while your team finds its next home. Cash on hand is oxygen.'},
+     {t:'Decline — this one compounds for the kids',v:true,key:'soldCo',val:false,r:'"Not for sale" is the most expensive sentence in business — and sometimes the most correct one.'}]},
+{k:'ba',time:'2:00 PM — Travel Desk',title:'Buenos Aires, planned like an operation',
+ n:s=>`Your lifestyle manager presents August: jet to Buenos Aires (10.5 hours, one pilot-crew swap), suites at the Palacio Duhau, abuela's birthday dinner, a Boca Juniors match for ${BOY()}, a ranch weekend for the girls. ${recall('baTrip',`The family already knows — ${W()} has been on with her mother nightly.`,'Still a surprise. The itinerary is codenamed "Tango."','')} <em>You can play the whole trip as a special storyline from the Today tab.</em>`,
+ lesson:`Simple version: wealthy travel isn't luck, it's logistics — private terminals, pilot rest rules, visas handled by staff. And the yacht part? Rented, not owned. A yacht costs about 10% of its price EVERY YEAR just to maintain. Renting a spectacular one for $500K a week is the smart-money move.`,
+ ch:[{t:'Add a chartered yacht week off Punta del Este',v:true,r:'The board\'s yacht panel, rendered in real water. Chartered — because now you know the math.'},
+     {t:'Keep it grounded — all family, no flex',v:true,r:'Abuela\'s table over any deck in the hemisphere. Correct call.'}]},
+{k:'movie',time:'8:30 PM — Home Theater',title:'The empire goes quiet',
+ n:s=>`Four kids, one Argentinian wife, one dog who firmly believes he owns the LLC. ${G8()} picks the movie; nobody argues, because her veto has never once been overridden in the history of this family. Your phone is in another room. Your net worth is irrelevant in this room — which is the entire point of the number.`,
+ lesson:`Simple version — the final mechanic: money is a tool for TIME. Every trust, every LLC, every investment in this whole game exists for one reason: to buy evenings exactly like this one, forever, with people you love.`,
+ ch:[{t:'End the day. Log it. Sleep.',v:true,r:'Day complete. The vision compounds while you rest.'}]}
+]
+];
+
+/* ---- SPECIAL STORYLINE: BUENOS AIRES (3 days) ---- */
+const BA=[
+[
+{k:'jet',time:'7:00 AM — Wheels Up',title:'Operation Tango begins',
+ n:s=>`The whole family walks from the cars to the jet in one unbroken motion — no lines, no gates. ${G8()} has appointed herself "snack captain." ${BOY()} claims the seat by the cockpit. ${G17()} films everything ${recall('backedG17','"for the brand," she says. Your investment at work.','for her friends.','')} 10.5 hours to Buenos Aires with one crew swap — pilots, like truckers, have legal rest limits.`,
+ lesson:`Simple version: long private flights need planning — pilots can only fly so many hours by law, so a second crew waits partway. Your family office handled the visas, the customs paperwork, and the cars on the other end weeks ago. Wealthy travel feels effortless because someone was paid to remove every ounce of effort.`,
+ ch:[{t:'Family card tournament over the Gulf of Mexico',v:true,r:`${W()} destroys everyone at truco, an Argentine card game none of you fully understand. She shows no mercy. You raised your kids around a champion.`},
+     {t:'Work the first leg, then be all theirs',v:true,r:'Two hours of email, then the laptop closes with a click that means something. The rest of the flight belongs to them.'}]},
+{k:'ba',time:'9:30 PM — Ezeiza, then Recoleta',title:'Touchdown in her country',
+ n:s=>`${W()} goes quiet at the window as the lights of Buenos Aires spread beneath the wing — her whole childhood down there. Private terminal, two Suburbans, and forty minutes later the Palacio Duhau receives the McGaffie family like it's been waiting all year. The kids' rooms connect. ${G8()} is asleep before the elevator door opens.`,
+ lesson:`Simple version: top hotels keep a file on wealthy families — room setups, allergies, how you take your coffee — so arrival is silent and perfect. You don't check in; you're received. It's not magic, it's a relationship your lifestyle manager maintains all year.`,
+ ch:[{t:'Wake abuela tonight — surprise her',v:true,key:'wokeAbuela',val:true,r:`${W()} calls up from the street. A light comes on. A tiny woman in a robe holds ${G8()} like the airport, the jet, and the ocean between them never existed. Nobody films it. Some things are too good for phones.`},
+     {t:'Sleep — let tomorrow be the moment',v:true,key:'wokeAbuela',val:false,r:'Discipline, even in joy. Tomorrow, at her birthday table, the doorbell will do what doorbells were invented for.'}]}
+],
+[
+{k:'ba',time:'10:00 AM — Recoleta & the Blue Dollar',title:'A walk through her city',
+ n:s=>`${W()} walks you through Recoleta — the café where she studied, the kiosk that still sells her candy. You notice shops quoting two different exchange rates. She explains what every Argentine knows in their bones: when a country's money loses value fast, people rush to hold dollars, property, <em>things</em>. "My father kept savings in bricks," she says, pointing at an apartment. "Literally."`,
+ lesson:`Simple version: inflation is money melting. Argentina has lived it for decades, which is why Argentines famously save in U.S. dollars and real estate instead of pesos. Big lesson for you: cash sitting still always melts a little, everywhere — even in America. That's why wealth is held in ASSETS (businesses, property, stocks) and cash is just the small, spendable layer on top.`,
+ ch:[{t:'Buy the apartment building her father admired',v:true,key:'boughtBA',val:true,r:`Your team will handle it through a local entity. ${W()} says you're insane. She's smiling when she says it. Abuela's rent, and her sister's, is now zero, forever.`},
+     {t:'Set up a dollar fund for her family instead',v:true,key:'boughtBA',val:false,r:'Quieter, simpler, and no leaky roofs to manage from Texas. Her family gets stability without you becoming a landlord 5,000 miles away.'}]},
+{k:'stage',time:'3:00 PM — La Bombonera',title:'Boca Juniors, with your boy',
+ n:s=>`The stadium shakes. Actually shakes. ${BOY()} — half Texan, half Argentine — screams songs in Spanish you didn't know he knew. A director's box, but he drags you down toward the rail "where the real fans are." He's right. For ninety minutes you're not a billionaire. You're a dad at a match, and your son is teaching YOU something.`,
+ lesson:`Simple version: study after study says the same thing — past a comfortable point, EXPERIENCES beat THINGS for happiness, every time. Things get normal; memories appreciate. The wealthy figure this out eventually. The wise figure it out early. This match will outlast every car in your garage.`,
+ ch:[{t:'Buy him the jersey off the club shop wall — number and name',v:true,r:'"MCGAFFIE" over his number. He wears it to dinner. He will wear it until it falls apart. Best money spent all trip.'},
+     {t:'Just stay till the very last whistle',v:true,r:'You\'re the last two out of the section. He falls asleep on your shoulder in the car, hoarse and happy.'}]},
+{k:'asado',time:'8:00 PM — Abuela\'s Birthday',title:'The table that started everything',
+ n:s=>`${recall('wokeAbuela','Abuela has told the doorstep story eleven times today and it improves with each telling.','The doorbell rings mid-toast. Abuela opens it, drops her napkin, and the street hears the scream. Worth every hour of the secret.','')} Three generations around one table. Abuela grips your hand: "Cuida a mi hija." Take care of my daughter. You tell her the trust documents say exactly that, in two languages. She laughs and refills your wine — she has no idea what a trust is, and she built this family without one.`,
+ lesson:`Simple version: your estate plan now crosses borders — supporting family in another country the right way involves tax treaties and careful structuring, which your family office handles. But tonight's real lesson is older than any of it: wealth without a table to bring it home to is just a number.`,
+ ch:[{t:'Announce the family fund for her church and barrio',v:true,r:'Abuela cries. Then immediately begins directing exactly how the money should be spent, block by block. You have never seen better project management.'},
+     {t:'Give her the one thing money can\'t rush — a promise to return every year',v:true,r:'"Every August," you say. It goes in the family constitution that night, right under the values. The kids co-sign it like a treaty.'}]}
+],
+[
+{k:'yacht',time:'9:00 AM — Estancia La Alondra',title:'The girls, on horseback',
+ n:s=>`A working ranch an hour outside the city. ${G18()} and ${G17()} ride out with the gauchos at dawn; ${G8()} gets a pony and a personal escort, and rules them both. ${W()} watches her daughters ride her country's land. You do the math on what land like this costs and stop yourself — some mornings aren't for math.`,
+ lesson:`Simple version: farmland and ranches are a real asset class the wealthy quietly love — land can't be printed like money, people always need food, and it tends to hold value when everything else wobbles. Bill Gates is one of the biggest farmland owners in America. Boring? Yes. That's the point.`,
+ ch:[{t:'Ride out with your daughters',v:true,r:`${G17()} films you nearly falling off. ${recall('backedG17','It becomes content. Your near-death experience gets 40K views. You demand a revenue share. She cites the term sheet YOU made her sign. Checkmate.','The video stays in the family group chat forever, pinned.','')}`},
+     {t:'Coffee with the estancia\'s owner — talk land',v:true,r:'An hour with a fifth-generation rancher teaches you more about patient wealth than any conference ever has. "Land doesn\'t hurry," he says. Neither do dynasties.'}]},
+{k:'yacht',time:'2:00 PM — Chartered, Off the Coast',title:'The yacht panel, in real water',
+ n:s=>`The exact image from the board — white hull, blue water — except now you know the secret: it's CHARTERED. $500K for the week, crew included, and when you fly home it's someone else's maintenance bill. ${G8()} declares the top deck her office. ${BOY()} and the crew are already fishing. ${W()} finds the one quiet corner and the one perfect sun angle, a skill she was born with.`,
+ lesson:`Simple version, one more time, because it's the golden rule of rich-people toys: "If it flies, floats, or... you rent it." A yacht costs ~10% of its price EVERY YEAR in crew, dock fees, and repairs. Chartering gets you 100% of the memory for 5% of the headache. The wealthy don't avoid luxury — they avoid OWNING depreciating luxury.`,
+ ch:[{t:'Anchor somewhere with no signal at all',v:true,r:'Six McGaffies, zero bars, one sunset. The family constitution gains an amendment: this, annually.'},
+     {t:'Invite abuela and the whole barrio crew aboard for the day',v:true,r:'Abuela boards like she owns it, inspects the kitchen, corrects the chef\'s chimichurri, and is adopted by the entire crew within the hour.'}]},
+{k:'home',time:'11:00 PM — The Flight Home',title:'What you actually own',
+ n:s=>`The cabin is dark. Four kids asleep in impossible positions. ${W()} is awake beside you, watching her country's lights fade off the wing. "Thank you," she says, in the language you met in. Out the window: nothing you own. Inside the cabin: everything you do. You open the journal and write one line for the vision board back home: <em>"It was never the jet. It was who was on it."</em>`,
+ lesson:`Simple version — the whole game in one sentence: build assets so money stops being a daily question, protect them with structure so they last past you, and spend the freedom they buy on the people at this table. That's it. That's the entire billionaire playbook. Now go build Day One.`,
+ ch:[{t:'Land, sleep, and return to the story tomorrow',v:true,r:'The Buenos Aires arc is complete. The story returns to Houston — and it remembers everything that happened here.'}]}
+]
+];
+function curScenes(){return (S.arc&&S.arc.on)?BA[Math.min(S.arc.d,BA.length-1)]:DAYS[(S.day-1)%DAYS.length]}
+function startBA(){S.arc={on:true,d:0};S.sceneIdx=0;logEvent('✈ The Buenos Aires storyline begins — Operation Tango');saveState();render();toast('Special storyline: Buenos Aires')}
+
+</script>
+<script>
+/* ============ QUIZ BANK ============ */
+const QUIZ=[
+{q:'Why do billionaires borrow against their stock instead of selling it?',o:['Banks pay them to borrow','Selling triggers capital gains tax; borrowing does not','Stock cannot legally be sold','Loans increase net worth'],a:1,x:'"Buy, borrow, die" — borrowing against equity avoids the 20%+ capital gains hit, and heirs inherit at stepped-up basis.'},
+{q:'FDIC insurance covers how much per depositor, per bank?',o:['$25,000','$250,000','$2.5M','Unlimited'],a:1,x:'That is why $20M never sits in one checking account — treasuries and diversified portfolios carry the rest.'},
+{q:'A Treasury bill ladder is:',o:['A crypto strategy','Government debt maturing in staggered intervals','A type of hedge fund','Stacked savings accounts'],a:1,x:'T-bills maturing every 30–90 days give safety, liquidity, and yield with no FDIC limit needed.'},
+{q:'Private banking (dedicated banker, private deals) typically starts around:',o:['$100K','$1M','$10M+ investable assets','$1B'],a:2,x:'At ~$10M+ you graduate to J.P. Morgan Private Bank, Goldman PWM, Northern Trust — the "$20M minimum balance" world.'},
+{q:'FBO stands for:',o:['Federal Banking Office','Fixed Base Operator — the private jet terminal','First Business Option','Flight Booking Organization'],a:1,x:'Car to cabin in four minutes. No TSA, no gates.'},
+{q:'Why is the mansion owned by an LLC inside a trust instead of personally?',o:['It looks impressive','Lawsuit protection, privacy, and estate-tax planning','Banks require it','To avoid property tax entirely'],a:1,x:'Someone sues, they sue the LLC. Records show a company. The trust passes it to heirs efficiently.'},
+{q:'Most wealthy people charter yachts instead of buying because:',o:['Charters are more luxurious','Ownership costs ~10% of the yacht\'s value EVERY year','Buying is illegal offshore','Charters include crew loyalty'],a:1,x:'"If it flies or floats — rent it." ~$500K/week chartered beats millions per year owned.'},
+{q:'The smart FIRST step into private aviation is:',o:['Buy a Gulfstream immediately','Fractional ownership (e.g., NetJets shares)','Build an airline','Lease a helicopter'],a:1,x:'Fractional until you truly fly 300+ hours/year. The jet is the LAST purchase, never the first.'},
+{q:'Private foundations are legally required to distribute what % of assets annually?',o:['1%','5%','25%','50%'],a:1,x:'5% minimum yearly — generosity with a compliance schedule, and contributions were tax-deductible.'},
+{q:'Municipal bonds are popular with the wealthy because:',o:['Highest returns of any asset','Interest is federally tax-free','They are secret','They double every year'],a:1,x:'At top tax brackets, tax-FREE 4% can beat taxable 6%.'},
+{q:'Staged trust distributions (25/30/35) exist because:',o:['Banks process slowly','Sudden wealth on the young is statistically destructive','It is required by law','Interest accrues faster'],a:1,x:'Time-release wealth builds stewards. Access arrives with maturity.'},
+{q:'A family office is:',o:['A home office room','A private company managing one family\'s wealth full-time','A government agency','A bank branch at home'],a:1,x:'At $100M+ you stop calling a bank and build one for yourself — CIO, tax director, attorney, security, lifestyle.'},
+{q:'A billionaire\'s net worth is mostly:',o:['Cash in vaults','Equity — ownership of companies','Gold','Real estate only'],a:1,x:'Wealth is ownership. The cash lifestyle is funded by yield and borrowing against that ownership.'},
+{q:'"Stepped-up basis" means heirs:',o:['Pay double tax','Inherit assets valued at date-of-death price, erasing prior gains for tax','Must sell within a year','Get government bonuses'],a:1,x:'The "die" in buy-borrow-die: embedded capital gains vanish for the next generation.'},
+{q:'$20M yielding a blended 4–5% throws off roughly:',o:['$80K/yr','$200K/yr','$800K–$1M/yr','$5M/yr'],a:2,x:'The quiet math: the money makes money faster than a good life spends it.'}];
+
+/* ============ RIBBON ============ */
+function drawRibbon(){
+  const day=curScenes();const n=day.length;const el=document.getElementById('ribbon');
+  const pct=Math.min(100,(S.sceneIdx/(n-0.001))*100);
+  let h=`<div class="track"></div><div class="fill" style="width:${Math.min(100,(S.sceneIdx/Math.max(1,n-1))*100)}%"></div>`;
+  day.forEach((sc,i)=>{const x=(i/(n-1))*100;
+    h+=`<div class="node ${i<S.sceneIdx?'done':''} ${i===S.sceneIdx?'now':''}" style="left:${x}%"></div>`;
+    h+=`<div class="tlabel" style="left:${x}%">${sc.time.split(' — ')[0]}</div>`;});
+  el.innerHTML=h;
+}
+/* ============ VIEWS ============ */
+const view=document.getElementById('view');
+let CUR='today';
+document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{document.querySelectorAll('.tab').forEach(x=>x.classList.remove('on'));t.classList.add('on');CUR=t.dataset.v;render()});
+function render(){refreshStats();drawRibbon();({today:vToday,visualize:vViz,learn:vLearn,empire:vEmpire,settings:vSet})[CUR]()}
+
+function vToday(){
+  const dayScenes=curScenes();
+  const todayStr=new Date().toDateString();
+  const inBA=S.arc&&S.arc.on;
+  const dayTag=inBA?('Buenos Aires — Day '+(S.arc.d+1)+' of 3'):('Day '+S.day);
+  let checkinHTML='';
+  if(S.lastCheckin!==todayStr){
+    checkinHTML=`<div class="card"><span class="stime">Daily Check-in</span>
+    <h2 class="stitle">${dayTag} begins</h2>
+    <p class="narrative">Check in to bank today's streak, then live the day scene by scene. Your choices are remembered.</p>
+    <div class="choices"><button class="btn" onclick="checkin()">Check in (+20 pts)</button></div></div>`;
+  }
+  let baCard='';
+  if(!inBA&&S.sceneIdx===0&&!S.flags.baDone){
+    baCard=`<div class="card">${art('ba')}<span class="stime">Special Storyline Available</span>
+    <h2 class="stitle">&#9992; Buenos Aires — Operation Tango</h2>
+    <p class="narrative">A 3-day family trip: the flight south, abuela's birthday, La Bombonera with ${BOY()}, the estancia with the girls, and the yacht panel of your board — in real water. The regular story pauses and picks back up when you return, remembering everything that happens there.</p>
+    <div class="choices"><button class="btn" onclick="startBA()">Begin the trip</button>
+    <button class="btn ghost" onclick="S.flags.baDone=true;saveState();render()">Hide for now (find it in My Empire)</button></div></div>`;
+  }
+  if(S.sceneIdx>=dayScenes.length){
+    let btn;
+    if(inBA&&S.arc.d<BA.length-1)btn=`<button class="btn" onclick="nextDay()">Next morning in Argentina &rarr;</button>`;
+    else if(inBA)btn=`<button class="btn" onclick="nextDay()">Fly home &rarr; return to the story</button>`;
+    else btn=`<button class="btn" onclick="nextDay()">Sleep &rarr; Begin Day ${S.day+1}</button>`;
+    view.innerHTML=checkinHTML+`<div class="card">${art(inBA?'ba':'home')}<span class="stime">${dayTag} — Complete</span>
+    <h2 class="stitle">${inBA?'The Argentine night settles in.':'The day is lived. The vision compounds.'}</h2>
+    <p class="narrative">You completed every scene. Take the knowledge check, run a visualization, or log what you built today in <em>My Empire</em> — the story weaves it into tomorrow.</p>
+    <div class="choices">${btn}</div></div>`;return;
+  }
+  const sc=dayScenes[S.sceneIdx];
+  view.innerHTML=checkinHTML+baCard+`<div class="card">${art(sc.k)}
+  <span class="stime">${inBA?'&#9992; '+dayTag+' &middot; ':''}${sc.time}</span><h2 class="stitle">${sc.title}</h2>
+  <p class="narrative">${sc.n(S)}</p>
+  <div class="lesson"><span class="ltag">Wealth Mechanic</span><p>${sc.lesson}</p></div>
+  <div class="choices" id="chBox">${sc.ch.map((c,i)=>`<button class="choice" onclick="pick(${i})">${c.t}</button>`).join('')}</div>
+  <div id="replyBox"></div></div>`;
+}
+function pick(i){
+  const sc=curScenes()[S.sceneIdx];const c=sc.ch[i];
+  if(c.key!==undefined)S.decisions[c.key]=c.val;
+  addPts(c.v?15:10,c.v?'wise move':'lesson learned');
+  logEvent(`Day ${S.day}, ${sc.time.split(' — ')[0]}: chose "${c.t}"`);
+  document.getElementById('chBox').innerHTML='';
+  document.getElementById('replyBox').innerHTML=`<div class="reply">${c.r}</div>
+  ${c.v===false?'<div class="memory">The story will remember this choice.</div>':''}
+  <div class="choices"><button class="btn" onclick="advance()">Continue →</button></div>`;
+  saveState();
+}
+function advance(){S.sceneIdx++;saveState();render()}
+function nextDay(){
+  if(S.arc&&S.arc.on){
+    S.arc.d++;S.sceneIdx=0;
+    if(S.arc.d>=BA.length){S.arc.on=false;S.arc.d=0;S.flags.baDone=true;S.day++;
+      logEvent('Returned home from Buenos Aires — Operation Tango complete');toast('Home. The story remembers Argentina.');}
+    else{logEvent('Buenos Aires — day '+(S.arc.d+1)+' begins');toast('A new morning in Argentina');}
+    saveState();render();return;
+  }
+  S.day++;S.sceneIdx=0;logEvent('Completed Day '+(S.day-1));saveState();render();toast('A new day. New scenes, old memories.')
+}
+
+function checkin(){
+  const t=new Date().toDateString();const y=new Date(Date.now()-864e5).toDateString();
+  S.streak=(S.lastCheckin===y)?S.streak+1:1;S.lastCheckin=t;
+  addPts(20+Math.min(30,S.streak*2),'daily check-in · streak '+S.streak);
+  logEvent('Checked in — streak '+S.streak);saveState();render();
+}
+/* ============ VISUALIZE ============ */
+let vizTimer=null,vizStep=0,breathOn=false;
+const VIZSTEPS=[
+{t:'Still the Water',d:120,tx:'Sit. Breathe with the gold circle — in as it grows, out as it shrinks. You cannot imprint on a shaking screen.'},
+{t:'Live One Scene',d:240,tx:'Step INSIDE one panel of the board, first person. Today: the walk from the Cullinan to the jet. Houston heat on your skin. Engine whine. Marcus\'s "Safe flight, Doc." All five senses. You are not watching this life — you are wearing it.'},
+{t:'Speak Identity',d:120,tx:'Out loud, present tense: "I create my own wealth. I own companies. I am building the McGaffie legacy. I am a generous investor and an influential leader."'},
+{t:'Bridge to Today',d:120,tx:'Ask: what would THAT Lawrence do before noon today? Write ONE action below. Vision + same-day action is the entire mechanism.'}];
+function vViz(){
+  const today=new Date().toDateString();const done=!!S.vizDone[today];
+  view.innerHTML=`<div class="card">${art('wake')}
+  <span class="stime">The Daily Protocol — 10 minutes</span>
+  <h2 class="stitle">Visualization Engine</h2>
+  <p class="narrative">${done?'Completed today. Run it again anytime — reps build the identity.':'Four guided steps. Complete all four to bank +25 points.'}</p>
+  <div id="vizStage"><div class="choices"><button class="btn" onclick="startViz()">Begin session</button>
+  <button class="btn ghost" onclick="startViz(true)">Quick mode (2 min)</button></div></div></div>
+  <div class="card"><span class="stime">Why this works</span>
+  <p class="narrative" style="font-size:13.5px;color:var(--dim)">Not magic — <em>neurological rehearsal</em>. You are training your brain's filter (the reticular activating system) to flag opportunities that match the picture, and normalizing the identity so bold action feels ordinary. The step most people skip is the bridge action. Never skip the bridge action.</p></div>`;
+}
+function startViz(quick){vizStep=0;runVizStep(quick?0.25:1)}
+function runVizStep(mult){
+  if(vizStep>=VIZSTEPS.length){finishViz();return}
+  const st=VIZSTEPS[vizStep];let remain=Math.round(st.d*mult);
+  const stage=document.getElementById('vizStage');
+  stage.innerHTML=`<span class="stime">Step ${vizStep+1} of 4 — ${st.t}</span>
+  <div class="breath" id="breath">breathe</div>
+  <p class="narrative" style="text-align:center">${st.tx}</p>
+  <p style="text-align:center;margin-top:12px;font-family:var(--serif);font-size:26px;color:var(--champagne)" id="vt">${remain}s</p>
+  <div class="choices"><button class="btn ghost" onclick="skipViz(${mult})">Next step →</button></div>`;
+  clearInterval(vizTimer);
+  const b=document.getElementById('breath');
+  breathOn=false;const bt=setInterval(()=>{breathOn=!breathOn;if(document.getElementById('breath'))b.classList.toggle('in',breathOn);else clearInterval(bt)},4000);
+  b.classList.add('in');breathOn=true;
+  vizTimer=setInterval(()=>{remain--;const el=document.getElementById('vt');if(!el){clearInterval(vizTimer);return}
+    el.textContent=remain+'s';if(remain<=0){clearInterval(vizTimer);vizStep++;runVizStep(mult)}},1000);
+}
+function skipViz(m){clearInterval(vizTimer);vizStep++;runVizStep(m)}
+function finishViz(){
+  document.getElementById('vizStage').innerHTML=`<span class="stime">Final step — The Bridge</span>
+  <label>One action future Lawrence would take before noon TODAY</label>
+  <input id="bridgeAct" placeholder="e.g., DM 5 potential ednotebook.com student ambassadors">
+  <div class="choices" style="margin-top:12px"><button class="btn" onclick="saveBridge()">Commit the action (+25 pts)</button></div>`;
+}
+function saveBridge(){
+  const a=document.getElementById('bridgeAct').value.trim();
+  const today=new Date().toDateString();S.vizDone[today]=true;
+  if(a)logEvent('Bridge action: '+a);
+  addPts(25,'visualization complete');saveState();vViz();
+  toast(a?'Committed. Now go do it.':'Session banked.');
+}
+/* ============ LEARN ============ */
+let qSet=[],qIdx=0,qScore=0;
+function vLearn(){
+  view.innerHTML=`<div class="card">${art('bank')}<span class="stime">Knowledge Check</span>
+  <h2 class="stitle">Wealth IQ: ${S.quiz.asked?Math.round(100*S.quiz.right/S.quiz.asked):0}% <span style="font-size:14px;color:var(--dim)">(${S.quiz.right}/${S.quiz.asked} lifetime)</span></h2>
+  <p class="narrative">Three questions pulled from the mechanics you are living in the story. +10 per correct answer.</p>
+  <div id="qStage"><div class="choices"><button class="btn" onclick="startQuiz()">Start today's check</button></div></div></div>`;
+}
+function startQuiz(){qSet=[...QUIZ].sort(()=>Math.random()-.5).slice(0,3);qIdx=0;qScore=0;showQ()}
+function showQ(){
+  if(qIdx>=qSet.length){
+    document.getElementById('qStage').innerHTML=`<h2 class="stitle">${qScore}/3</h2>
+    <p class="narrative">${qScore===3?'Perfect. You are learning the operating system of wealth.':qScore===2?'Strong. The gaps are where the growth is.':'The story teaches; the quiz confirms. Replay a day and watch the lesson cards.'}</p>
+    <div class="choices"><button class="btn" onclick="startQuiz()">Another round</button></div>`;return}
+  const q=qSet[qIdx];
+  document.getElementById('qStage').innerHTML=`<span class="stime">Question ${qIdx+1} of 3</span>
+  <p class="narrative" style="margin:8px 0 10px;font-weight:600">${q.q}</p>
+  ${q.o.map((o,i)=>`<button class="quiz-opt" onclick="answer(${i})">${o}</button>`).join('')}
+  <div id="qx"></div>`;
+}
+function answer(i){
+  const q=qSet[qIdx];S.quiz.asked++;
+  const opts=document.querySelectorAll('.quiz-opt');
+  opts.forEach((o,j)=>{o.disabled=true;if(j===q.a)o.classList.add('right');else if(j===i)o.classList.add('wrong')});
+  if(i===q.a){S.quiz.right++;qScore++;addPts(10,'correct')}
+  document.getElementById('qx').innerHTML=`<div class="reply">${q.x}</div>
+  <div class="choices"><button class="btn" onclick="qIdx++;showQ()">Next →</button></div>`;
+  saveState();
+}
+/* ============ EMPIRE ============ */
+function vEmpire(){
+  const F=S.family||{};
+  const famCard=`<div class="card"><span class="stime">The Family — name your characters</span>
+  <h2 class="stitle">The McGaffies</h2>
+  <p class="narrative" style="font-size:13.5px">Type first names once and the whole story uses them — every scene, the Buenos Aires trip, all of it. Leave any blank and the story uses a warm generic instead.</p>
+  <div class="row" style="margin-top:8px">
+  <div style="flex:1;min-width:130px"><label>Wife</label><input id="fWife" value="${F.wife||''}" placeholder="first name"></div>
+  <div style="flex:1;min-width:130px"><label>Daughter, 18</label><input id="fG18" value="${F.g18||''}" placeholder="first name"></div>
+  <div style="flex:1;min-width:130px"><label>Daughter, 17</label><input id="fG17" value="${F.g17||''}" placeholder="first name"></div>
+  <div style="flex:1;min-width:130px"><label>Daughter, 8</label><input id="fG8" value="${F.g8||''}" placeholder="first name"></div>
+  <div style="flex:1;min-width:130px"><label>Son</label><input id="fBoy" value="${F.boy||''}" placeholder="first name"></div></div>
+  <div class="choices" style="margin-top:12px"><button class="btn" onclick="saveFamily()">Save the family</button></div></div>`;
+  view.innerHTML=famCard+
+`<div class="card">${art('venture')}<span class="stime">My Empire — the story runs on your real life</span>
+  <h2 class="stitle">Add what you're building</h2>
+  <p class="narrative">Log ventures and projects (ednotebook.com, Agent00Source, CoolIsle, anything new). The story engine weaves them into boardroom scenes, deal days, and your timeline — the simulation adapts to your actual empire.</p>
+  <label>Venture name</label><input id="vName" placeholder="ednotebook.com">
+  <label>What it is / current focus</label><input id="vDesc" placeholder="a place for students to own their semester — launching ambassador outreach">
+  <div class="choices" style="margin-top:12px"><button class="btn" onclick="addVenture()">Add to the story (+15 pts)</button></div>
+  <div style="margin-top:14px">${S.ventures.map((v,i)=>`<span class="pill">${v.name} <a href="#" onclick="rmV(${i});return false" style="color:var(--bad);text-decoration:none">✕</a></span>`).join('')||'<span class="pill">No ventures yet — the boardroom is waiting</span>'}</div></div>
+  <div class="card"><span class="stime">Special Storylines</span>
+  <div class="choices" style="margin-top:10px"><button class="btn ghost" onclick="startBA()">&#9992; ${S.flags.baDone?'Replay':'Begin'} the Buenos Aires trip</button></div></div>
+  <div class="card"><span class="stime">Timeline — the McGaffie record</span>
+  <div style="margin-top:12px">${S.log.slice(0,25).map(l=>`<div class="tl-item"><span class="td">Day ${l.d} · ${l.date}</span><p>${l.t}</p></div>`).join('')||'<p class="narrative" style="color:var(--dim)">Your story writes itself here as you play.</p>'}</div></div>`;
+}
+function saveFamily(){
+  S.family={wife:fWife.value.trim(),g18:fG18.value.trim(),g17:fG17.value.trim(),g8:fG8.value.trim(),boy:fBoy.value.trim()};
+  logEvent('The family stepped into the story: '+Object.values(S.family).filter(Boolean).join(', '));
+  saveState();vEmpire();toast('The story knows their names now');
+}
+function addVenture(){
+  const n=document.getElementById('vName').value.trim();if(!n){toast('Name the venture first');return}
+  const d=document.getElementById('vDesc').value.trim();
+  S.ventures.push({name:n,desc:d,added:new Date().toLocaleDateString()});
+  logEvent('New venture added to the empire: '+n+(d?' — '+d:''));
+  addPts(15,'empire grows');saveState();vEmpire();
+}
+function rmV(i){S.ventures.splice(i,1);saveState();vEmpire()}
+/* ============ SETTINGS / MEMORY ============ */
+function vSet(){
+  const c=supaCfg();
+  view.innerHTML=`<div class="card"><span class="stime">Memory</span>
+  <h2 class="stitle">Where your story is stored</h2>
+  <p class="narrative" style="font-size:13.5px">Saves locally on this device automatically. Connect Supabase to sync the same story across every device.</p>
+  <p class="narrative" style="font-size:13px;color:var(--teal);margin-top:8px" id="cloudMsg">${c?'☁ Supabase connected':'Local save only'}</p>
+  <label>Supabase Project URL</label><input id="sUrl" placeholder="https://xxxx.supabase.co" value="${lsGet('supa_url')||''}">
+  <label>Supabase anon (public) key</label><input id="sKey" placeholder="eyJhbGciOi..." value="${lsGet('supa_key')||''}">
+  <div class="choices" style="margin-top:12px"><button class="btn" onclick="saveSupa()">Save & sync now</button>
+  <button class="btn ghost" onclick="pullSupa()">Pull latest from cloud</button></div></div>
+  <div class="card"><span class="stime">One-time setup</span>
+  <p class="narrative" style="font-size:13px;color:var(--dim)">In Supabase → SQL Editor, run this once, then paste your Project URL and anon key above (Project Settings → API):</p>
+  <pre style="background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:12px;font-size:11.5px;overflow-x:auto;color:var(--champagne);margin-top:8px">create table if not exists vision_state (
+  user_key text primary key,
+  state jsonb,
+  updated_at timestamptz default now()
+);
+alter table vision_state enable row level security;
+create policy "vision open" on vision_state
+  for all using (true) with check (true);</pre>
+  <p class="narrative" style="font-size:12px;color:var(--dim);margin-top:8px">The anon key is designed to be public-safe, but this open policy means anyone with your URL+key could read the save — fine for a personal vision game; don't store secrets in it.</p></div>
+  <div class="card"><span class="stime">Danger zone</span>
+  <div class="choices"><button class="btn ghost" style="color:var(--bad);border-color:var(--bad)" onclick="if(confirm('Erase the entire story and start Day 1 fresh?')){S=JSON.parse(JSON.stringify(DEFAULT));saveState();render();toast('New timeline begun.')}">Reset the timeline</button></div></div>`;
+}
+function saveSupa(){lsSet('supa_url',document.getElementById('sUrl').value.trim());lsSet('supa_key',document.getElementById('sKey').value.trim());supaSave();toast('Saving to cloud…')}
+async function pullSupa(){const ok=await supaLoad();if(ok){await saveState();render();toast('Cloud save loaded')}else toast('No cloud save found yet')}
+/* ============ INIT ============ */
+(async function(){await loadState();render()})();
+</script>
+</body>
+</html>
