@@ -19,6 +19,25 @@ test('new simulation landing links into the complete application', async ({ page
   await expect(page.locator('main h1')).toBeVisible();
 });
 
+test('simulation memory persists locally and offers secure cloud backup', async ({ page }) => {
+  await page.goto('http://127.0.0.1:5173/');
+  await page.getByRole('button', { name: 'My Empire' }).click();
+  await page.getByLabel('Venture name').fill('Persistent Test Venture');
+  await page.getByLabel('What it is / current focus').fill('Confirm local memory survives reloads');
+  await page.getByRole('button', { name: /Add to the story/i }).click();
+  await page.reload();
+  await page.getByRole('button', { name: 'My Empire' }).click();
+  await expect(page.getByText('Persistent Test Venture')).toBeVisible();
+
+  await page.getByRole('button', { name: 'Memory' }).click();
+  await expect(page.getByRole('heading', { name: 'Your story remembers' })).toBeVisible();
+  await expect(page.getByText(/saves automatically in this browser/i)).toBeVisible();
+  await expect(page.getByLabel('Supabase Project URL')).toHaveCount(0);
+  await page.getByRole('button', { name: /Open Secure Cloud Memory/i }).click();
+  await expect(page.getByRole('heading', { name: /Keep your progress across devices/i })).toBeVisible();
+  await expect(page.getByLabel('Email address')).toBeVisible();
+});
+
 test('onboarding, prologue, rewind and daily persistence', async ({ page }) => {
   await page.getByRole('button', { name: /begin the journey/i }).click();
   await page.getByLabel('Preferred display name').fill('Lawrence');
