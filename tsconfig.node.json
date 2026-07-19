@@ -1,1 +1,1 @@
-{"compilerOptions":{"composite":true,"skipLibCheck":true,"module":"ESNext","moduleResolution":"Bundler","allowImportingTsExtensions":true,"noEmit":true,"lib":["ES2022","DOM"]},"include":["vite.config.ts","playwright.config.ts","scripts","src/**/*.ts"]}
+{"compilerOptions":{"composite":true,"skipLibCheck":true,"module":"ESNext","moduleResolution":"Bundler","allowImportingTsExtensions":true,"noEmit":true,"lib":["ES2022","DOM"]},"include":["vite.config.ts","playwright.config.ts","scripts","src/**/*.ts"],"exclude":["src/cloudMemory.ts"]}
