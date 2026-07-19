@@ -1,0 +1,33 @@
+name: Verify Vision 2031
+
+on:
+  pull_request:
+  push:
+    branches:
+      - codex/map-claude-index
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: vision-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.7.0
+          run_install: false
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm run verify
+      - run: pnpm exec playwright install --with-deps chromium
+      - run: pnpm run test:e2e
