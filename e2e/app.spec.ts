@@ -19,6 +19,35 @@ test('new simulation landing links into the complete application', async ({ page
   await expect(page.locator('main h1')).toBeVisible();
 });
 
+test('memory persists locally and secure cloud backup is available', async ({ page }) => {
+  await page.goto('http://127.0.0.1:5173/');
+  await page.evaluate(() => {
+    localStorage.setItem(
+      'visionlife',
+      JSON.stringify({
+        day: 7,
+        points: 125,
+        ventures: [{ name: 'Persistent Test Venture', desc: 'Saved locally' }],
+      }),
+    );
+    localStorage.setItem('supa_url', 'https://unsafe.example');
+    localStorage.setItem('supa_key', 'legacy-key');
+  });
+  await page.reload();
+
+  const remembered = await page.evaluate(() => JSON.parse(localStorage.getItem('visionlife') || '{}'));
+  expect(remembered.day).toBe(7);
+  expect(remembered.ventures[0].name).toBe('Persistent Test Venture');
+  expect(await page.evaluate(() => localStorage.getItem('supa_url'))).toBeNull();
+  expect(await page.evaluate(() => localStorage.getItem('supa_key'))).toBeNull();
+
+  const cloudButton = page.locator('[data-cloud-open]');
+  await expect(cloudButton).toBeVisible();
+  await cloudButton.click();
+  await expect(page.getByRole('heading', { name: /Keep your progress across devices/i })).toBeVisible();
+  await expect(page.getByLabel('Email address')).toBeVisible();
+});
+
 test('onboarding, prologue, rewind and daily persistence', async ({ page }) => {
   await page.getByRole('button', { name: /begin the journey/i }).click();
   await page.getByLabel('Preferred display name').fill('Lawrence');

@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#080f24" />
+    <title>Connecting Cloud Memory…</title>
+    <style>
+      :root{color-scheme:dark;font-family:Inter,system-ui,sans-serif;background:#080f24;color:#f3eddd}
+      body{min-height:100vh;margin:0;display:grid;place-items:center;background:radial-gradient(ellipse 80% 50% at 50% -10%,rgba(212,175,55,.12),transparent),#080f24}
+      main{width:min(88vw,560px);border:1px solid #243259;border-radius:18px;background:#0e1834;padding:30px;text-align:center;box-shadow:0 25px 90px rgba(0,0,0,.55)}
+      h1{font-family:Georgia,serif;color:#f0da9b;margin:.3rem 0 1rem}
+      p{color:#b8c1d7;line-height:1.6}
+      a{display:inline-block;margin-top:14px;color:#f0da9b}
+      .mark{font-size:34px;color:#d4af37}
+    </style>
+  </head>
+  <body>
+    <main>
+      <div class="mark" aria-hidden="true">☁</div>
+      <h1>Connecting Cloud Memory</h1>
+      <p id="message" role="status">Securing your session…</p>
+      <a id="returnLink" href="./index.html">Return to Vision Life</a>
+    </main>
+    <script>
+      (() => {
+        const AUTH_KEY = 'vision-cloud-auth-v1';
+        const message = document.getElementById('message');
+        const returnLink = document.getElementById('returnLink');
+        const params = new URLSearchParams(location.hash.replace(/^#/, ''));
+        const query = new URLSearchParams(location.search);
+        const destination = query.get('return') === 'app' ? './app.html#/settings' : './index.html';
+        returnLink.href = destination;
+
+        const error = params.get('error_description') || params.get('error');
+        const accessToken = params.get('access_token');
+        const refreshToken = params.get('refresh_token');
+        const expiresIn = Number(params.get('expires_in') || 3600);
+
+        const decode = (token) => {
+          try {
+            const segment = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
+            const padded = segment.padEnd(Math.ceil(segment.length / 4) * 4, '=');
+            return JSON.parse(atob(padded));
+          } catch {
+            return null;
+          }
+        };
+
+        if (error) {
+          message.textContent = `Sign-in could not be completed: ${error}`;
+          return;
+        }
+
+        if (!accessToken || !refreshToken) {
+          message.textContent = 'The sign-in link is missing its secure session. Request a new link from Cloud Memory.';
+          return;
+        }
+
+        const payload = decode(accessToken);
+        const session = {
+          accessToken,
+          refreshToken,
+          expiresAt: Date.now() + expiresIn * 1000,
+          userId: payload?.sub || '',
+          email: payload?.email || '',
+        };
+
+        if (!session.userId) {
+          message.textContent = 'The secure session could not identify its owner. Request a new sign-in link.';
+          return;
+        }
+
+        try {
+          localStorage.setItem(AUTH_KEY, JSON.stringify(session));
+          message.textContent = 'Cloud Memory is connected. Returning to your vision…';
+          history.replaceState(null, '', location.pathname + location.search);
+          setTimeout(() => location.replace(destination), 900);
+        } catch {
+          message.textContent = 'Your browser blocked local session storage. Allow site storage and request another sign-in link.';
+        }
+      })();
+    </script>
+  </body>
+</html>
