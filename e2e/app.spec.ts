@@ -1,10 +1,24 @@
 import { test, expect } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
+
 test.beforeEach(async ({ page }) => {
   await page.goto('#/');
   await page.evaluate(() => localStorage.clear());
   await page.reload();
 });
+
+test('new simulation landing links into the complete application', async ({ page }) => {
+  await page.goto('http://127.0.0.1:5173/');
+  await expect(page.getByRole('heading', { name: 'I Create My Own Wealth' })).toBeVisible();
+  await expect(page.getByRole('link', { name: /Open Full Vision 2031/i })).toHaveAttribute(
+    'href',
+    './app.html#/',
+  );
+  await page.getByRole('link', { name: /15-Quarter Map/i }).click();
+  await expect(page).toHaveURL(/app\.html#\/timeline/);
+  await expect(page.locator('main h1')).toBeVisible();
+});
+
 test('onboarding, prologue, rewind and daily persistence', async ({ page }) => {
   await page.getByRole('button', { name: /begin the journey/i }).click();
   await page.getByLabel('Preferred display name').fill('Lawrence');
@@ -29,9 +43,8 @@ test('onboarding, prologue, rewind and daily persistence', async ({ page }) => {
     page.getByRole('button', { name: /chapter complete/i }),
   ).toBeVisible();
 });
-test('wealth lab, settings, export and accessibility smoke', async ({
-  page,
-}) => {
+
+test('wealth lab, settings, export and accessibility smoke', async ({ page }) => {
   await page.goto('#/wealth-lab');
   await expect(page.getByRole('heading', { name: 'Wealth Lab' })).toBeVisible();
   await page.getByLabel('Operating cash').fill('600000');
@@ -45,6 +58,7 @@ test('wealth lab, settings, export and accessibility smoke', async ({
   await page.getByRole('button', { name: /Export all JSON/ }).click();
   await dl;
 });
+
 test('all major routes survive the Pages base path', async ({ page }) => {
   for (const route of [
     'timeline',
